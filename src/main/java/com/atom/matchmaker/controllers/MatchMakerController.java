@@ -1,8 +1,11 @@
 package com.atom.matchmaker.controllers;
 
+import com.atom.matchmaker.SessionCreator;
+import com.atom.matchmaker.models.Player;
+import com.atom.matchmaker.models.Session;
+import com.atom.matchmaker.repositories.PlayersQueue;
 import com.atom.matchmaker.repositories.PlayersRepository;
 import com.atom.matchmaker.repositories.SessionRepository;
-import javafx.print.PageLayout;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -10,6 +13,8 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +23,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import com.atom.matchmaker.models.Player;
-import com.atom.matchmaker.models.Session;
-
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
 
 
 @Controller
@@ -37,15 +37,18 @@ public class MatchMakerController {
     private static final String HOST = "localhost";
     private static final String PORT = ":8080";
 
-    private static final int PLAYERSCOUNT = 4;
+    private static final int PLAYERS_COUNT = 4;
 
     private PlayersRepository playersRepository;
     private SessionRepository sessionRepository;
+    private PlayersQueue playersQueue;
 
     @Autowired
-    public MatchMakerController(PlayersRepository playersRepository, SessionRepository sessionRepository) {
+    public MatchMakerController(PlayersRepository playersRepository, SessionRepository sessionRepository,
+                                TaskExecutor taskExecutor, PlayersQueue playersQueue, ApplicationContext ctx) {
         this.playersRepository = playersRepository;
         this.sessionRepository = sessionRepository;
+        this.playersQueue = playersQueue;
     }
 
     @RequestMapping(
@@ -53,7 +56,7 @@ public class MatchMakerController {
             method = RequestMethod.POST,
             produces = MediaType.TEXT_PLAIN_VALUE)
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<String> join(@RequestParam("name") String name) throws IOException {
+    public ResponseEntity<String> join(@RequestParam("name") String name) throws InterruptedException {
         log.info("Joining to game with name = {}", name);
         Optional<Player> optionalPlayer = playersRepository.findByUsername(name);
         Player player;
@@ -64,35 +67,17 @@ public class MatchMakerController {
         } else {
             player = optionalPlayer.get();
         }
+        playersQueue.getPlayers().offer(player);
 
-        List<Session> sessions = sessionRepository.findAll();
-        log.info("Tryin' to find valid session(with rating). It uses manhattan distance");
-        double threshold = 0;
-        do {
-            for (Session session : sessions) {
-                if (!session.isFull()) {
-                    double rating = Math.abs(session.getAverageRating() - player.getRating());
-                    if (rating <= threshold) {
-                        log.info("Found valid session {}", session.getId());
-                        session.addPlayer(player);
-                        sessionRepository.save(session);
-                        if (session.isFull()) {
-                            log.info("Session is full. Start the game");
-                            start(session.getId());
-                            return new ResponseEntity<>(String.valueOf(session.getId()), HttpStatus.OK);
-                        }
-                    }
-                }
-            }
-            threshold++;
-        } while (threshold != 10);
-        log.info("Couldn't find valid session, so we're creating one!");
-        Optional<Session> optionalSession = sessionRepository.findById(create());
-        if (!optionalSession.isPresent()) return new ResponseEntity<>("WTF! Session not found", HttpStatus.BAD_REQUEST);
-        Session session = optionalSession.get();
-        session.addPlayer(player);
-        sessionRepository.save(session);
-        return new ResponseEntity<>(String.valueOf(session.getId()), HttpStatus.OK);
+        // Todo: this should be refactored. Get id after session creator found session.
+        while(playersQueue.getPlayers().contains(player))
+        {
+            Thread.sleep(10);
+        }
+        Thread.sleep(10000);
+        Player player1 = playersRepository.findById(player.getId()).get();
+        log.info("Player session id is {}", player1.getSession().getId());
+        return new ResponseEntity<>(String.valueOf(player1.getSession().getId()), HttpStatus.OK);
     }
 
     //TODO
@@ -101,7 +86,7 @@ public class MatchMakerController {
     private long create() throws IOException {
         okhttp3.MediaType mediaType = okhttp3.MediaType.parse("application/x-www-form-urlencoded");
         Request request = new Request.Builder()
-                .post(RequestBody.create(mediaType, "playerCount=" + PLAYERSCOUNT))
+                .post(RequestBody.create(mediaType, "playerCount=" + PLAYERS_COUNT))
                 .url(PROTOCOL + HOST + PORT + "/game/create")
                 .build();
         Response response = client.newCall(request).execute();

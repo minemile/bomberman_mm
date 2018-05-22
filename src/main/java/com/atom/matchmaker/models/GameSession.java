@@ -1,32 +1,25 @@
 package com.atom.matchmaker.models;
 
 import lombok.Data;
-import lombok.ToString;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
-@Entity
+
 @Data
-@ToString(exclude = {"players"})
-public class Session {
+public class GameSession {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private int playerCount;
 
-    @OneToMany(mappedBy = "session", fetch = FetchType.EAGER)
     private List<Player> players = new ArrayList<>();
 
     private boolean isFinished = false;
     private double rating;
 
-    public Session() {}
+    public GameSession() {}
 
-    public Session(int playerCount) {
+    public GameSession(int playerCount) {
         this.playerCount = playerCount;
     }
 
@@ -45,5 +38,4 @@ public class Session {
             rating += player.getRating();
         return rating / players.size();
     }
-
 }

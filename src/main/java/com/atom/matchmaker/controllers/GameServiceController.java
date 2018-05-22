@@ -16,15 +16,11 @@ import com.atom.matchmaker.models.Session;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Controller
 @RequestMapping("/game")
 public class GameServiceController {
     private static final Logger log = LoggerFactory.getLogger(GameServiceController.class);
-
-    private AtomicInteger gameId = new AtomicInteger(0);
 
     private PlayersRepository playersRepository;
     private SessionRepository sessionRepository;
@@ -78,13 +74,13 @@ public class GameServiceController {
 
     @GetMapping(path = "leaderboard", produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public HashMap<String, Integer> getLeaderboard() {
+    public HashMap<String, Long> getLeaderboard() {
         log.info("Getting leaderboard...");
-        HashMap<String, Integer> leaderboard = new HashMap<>();
+        HashMap<String, Long> leaderboard = new HashMap<>();
         List<Player> players = playersRepository.findAll();
         for (Player player : players)
         {
-            leaderboard.put(player.getUsername(), player.getRating());
+            leaderboard.put(player.getUsername(), player.getSession().getId());
         }
         return leaderboard;
     }

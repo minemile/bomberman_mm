@@ -1,67 +1,52 @@
-<head>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-</head>
+<!doctype html>
 <html>
-<body>
-<div class="play_div container"></div>
-<div id="form_div" class="container">
-    <form method="POST" id="nameform" action="javascript:void(null);" onsubmit="play()">
-        <label>Your name: <input id="name" name="name" value="" style="font-size:medium" type="text"></label>
-        <button class="play_btn btn" style="font-size:medium" type="submit">Play</button>
-        <br>
-        <b>Leaderboard:</b>
-        <div class="leaderboard"></div>
-    </form>
-</div>
-<div id="connection_info_div" class="container">
-</div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script>
-    var host = "localhost";
-    var port = 8080;
-    var innerHtml ='<div id="nameform">' +
-        '<span>Your GameSessionId:</span>' +
-        '<span id="id"></span><br/>' +
-        '<button class="connect_btn btn" type="submit" >Connect</button></div>';
+<head>
+    <title>Bomberman</title>
+    <meta name="description" content="Transmission">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 
-    var leaderboard_params = {
-        "crossDomain": true,
-        "url": "http://" + host + ":" + port + "/game/leaderboard",
-        "method": "GET",
-    };
-    $.ajax(leaderboard_params).done(function (response) {
-        var leaderboard_html = "<span>{0}: {1}</span><br/>";
-        var output = '';
-        for(var username in response)
-        {
-            //wow. no format in js
-            var rating = response[username];
-            output += leaderboard_html.replace("{0}", username).replace("{1}", rating);
-        }
-        $(".leaderboard").html(output);
-    });
-    function play(){
-        var name = $('#nameform').serialize();
-        var settings = {
-            "crossDomain": true,
-            "url": "http://" + host + ":" + port + "/matchmaker/join",
-            "method": "POST",
-            "data":name
-        };
+    <script src="js/external/preloadjs-NEXT.combined.js"></script>
+    <script src="js/external/easeljs-NEXT.combined.js"></script>
+    <script src="js/external/jquery-3.3.1.min.js"></script>
 
-        document.getElementById("connection_info_div").innerHTML = '<span>Waiting for another players<span>';
-        //document.getElementById("connection_info_div").visibility = "hidden";
-        $.ajax(settings).done(function (response) {
-            $('#connection_info_div').html("");
-            $('#form_div').html(innerHtml);
-            $('#id').html(response);
-        }).fail(function (jqXHR, textStatus) {
-            $('#connection_info_div').html("");
-            alert(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
-            console.log(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
-        });
-    }
+    <script src="js/settings/ClusterSettings.js"></script>
+    <script src="js/settings/CanvasSettings.js"></script>
+    <script src="js/Menu.js"></script>
+    <script src="js/game/Game.js"></script>
+    <script src="js/game/Player.js"></script>
+    <script src="js/game/Bonus.js"></script>
+    <script src="js/game/Tile.js"></script>
+    <script src="js/game/Fire.js"></script>
+    <script src="js/game/Bomb.js"></script>
+    <script src="js/messaging/MessageBroker.js"></script>
+    <script src="js/messaging/ServerProxy.js"></script>
+    <script src="js/InputEngine.js"></script>
+    <script src="js/GameEngine.js"></script>
+    <script src="js/MatchMaker.js"></script>
 
-</script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+<body onload="gGameEngine.load()">
+    <div class="container">
+        <div class="page-header">
+        </div>
+        <div id="game">
+            <canvas id="canvas" style="background-color: gray;"></canvas>
+        </div>
+        <h3>You have only 10 seconds to transmit the bomb, be fast!</h3>
+        <ul>
+            <li><strong>arrow keys</strong> - move</li>
+            <li><strong>spacebar</strong> - jump</li>
+            <li><strong>q</strong> - plant bomb</li>
+        </ul>
+        <hr>
+
+        <div class="footer">
+            <div class="alert alert-success">
+                <img src="img/github.png" width="32">
+            </div>
+        </div>
+    </div>
 </body>
 </html>

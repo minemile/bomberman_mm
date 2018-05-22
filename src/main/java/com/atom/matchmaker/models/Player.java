@@ -1,8 +1,10 @@
 package com.atom.matchmaker.models;
 
 import lombok.Data;
+import lombok.NonNull;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Data
@@ -35,4 +37,8 @@ public class Player {
         this.rating = rating;
     }
 
+    @NotNull
+    public int getRating() {
+        return rating;
+    }
 }
