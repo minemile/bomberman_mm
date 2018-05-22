@@ -1,11 +1,9 @@
 package com.atom.Game;
 
 import org.junit.Test;
-import com.atom.GameObject.Bomb;
-import com.atom.GameObject.Pawn;
-import com.atom.GameObject.Tile;
-import com.atom.geometry.Point;
-import com.atom.GameObject.TileType;
+import com.atom.game.objects.Bomb;
+import com.atom.game.objects.Pawn;
+import com.atom.game.geometry.Point;
 import com.atom.models.GameSession;
 
 import static java.lang.Thread.sleep;

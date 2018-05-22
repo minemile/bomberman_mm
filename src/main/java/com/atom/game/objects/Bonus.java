@@ -1,15 +1,8 @@
-package com.atom.GameObject;
+package com.atom.game.objects;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.atom.utils.JsonHelper;
-import com.atom.geometry.Point;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static com.atom.utils.JsonHelper.toJson;
+import com.atom.game.geometry.Point;
 
 public class Bonus extends GameObject {
     BonusType type;

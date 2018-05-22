@@ -1,4 +1,4 @@
-package com.atom.GameObject;
+package com.atom.game.objects;
 
 public enum BonusType {
     SPEED,

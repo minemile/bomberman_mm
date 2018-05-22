@@ -1,4 +1,4 @@
-package com.atom.tickables;
+package com.atom.game.tickables;
 
 /**
  * Any game object that changes with time

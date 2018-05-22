@@ -1,7 +1,6 @@
 package com.atom.matchmaker.network;
 
-import com.atom.matchmaker.controllers.GameServiceController;
-import com.atom.matchmaker.models.Player;
+import com.atom.models.Player;
 import com.atom.matchmaker.repositories.PlayersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

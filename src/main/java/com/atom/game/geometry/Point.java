@@ -1,12 +1,6 @@
-package com.atom.geometry;
+package com.atom.game.geometry;
 
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.atom.utils.JsonHelper.toJson;
+import static com.atom.game.utils.JsonHelper.toJson;
 
 /**
  * Template class for

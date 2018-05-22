@@ -1,4 +1,4 @@
-package com.atom.models.DataTypes;
+package com.atom.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

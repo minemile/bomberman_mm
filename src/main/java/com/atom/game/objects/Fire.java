@@ -1,12 +1,9 @@
-package com.atom.GameObject;
+package com.atom.game.objects;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.atom.geometry.Point;
-import com.atom.tickables.Tickable;
-
-import java.util.HashMap;
-import java.util.Map;
+import com.atom.game.geometry.Point;
+import com.atom.game.tickables.Tickable;
 
 public class Fire extends GameObject implements Tickable {
     private int LIFETIME = 200;

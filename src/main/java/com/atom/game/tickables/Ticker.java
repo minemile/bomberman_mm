@@ -1,4 +1,4 @@
-package com.atom.tickables;
+package com.atom.game.tickables;
 
 
 import org.slf4j.LoggerFactory;

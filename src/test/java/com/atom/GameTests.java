@@ -1,12 +1,6 @@
 package com.atom;
 
-import org.junit.Assert;
 import org.junit.Test;
-import com.atom.models.Player;
-import com.atom.models.GameSession;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

@@ -1,12 +1,10 @@
-package com.atom.matchmaker.models;
+package com.atom.models;
 
 import lombok.Data;
 import lombok.ToString;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 @Data
 @ToString(exclude = {"players"})

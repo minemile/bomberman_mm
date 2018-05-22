@@ -1,6 +1,6 @@
-package com.atom.GameObject;
+package com.atom.game.objects;
 
-import com.atom.geometry.Point;
+import com.atom.game.geometry.Point;
 
 public abstract class GameObject {
     private int id = 0;

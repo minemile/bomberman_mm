@@ -1,6 +1,6 @@
 package com.atom.matchmaker.network;
 
-import com.atom.matchmaker.models.Player;
+import com.atom.models.Player;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;

@@ -2,18 +2,15 @@ package com.atom.models;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import com.atom.GameObject.*;
-import com.atom.geometry.Point;
-import com.atom.models.DataTypes.DataDirection;
-import com.atom.repositories.InputQueue;
-import com.atom.tickables.Tickable;
+import com.atom.game.objects.*;
+import com.atom.game.geometry.Point;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.atom.GameObject.PawnState.*;
-import static com.atom.GameObject.TileType.CRATE;
-import static com.atom.GameObject.TileType.WALL;
+import static com.atom.game.objects.PawnState.*;
+import static com.atom.game.objects.TileType.CRATE;
+import static com.atom.game.objects.TileType.WALL;
 import static com.atom.utils.JsonHelper.fromJson;
 
 public class GameSession extends Thread{

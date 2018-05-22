@@ -1,7 +1,7 @@
 package com.atom.matchmaker;
 
-import com.atom.matchmaker.models.Player;
-import com.atom.matchmaker.models.Session;
+import com.atom.models.Player;
+import com.atom.models.Session;
 import com.atom.matchmaker.repositories.PlayersQueue;
 import com.atom.matchmaker.repositories.PlayersRepository;
 import com.atom.matchmaker.repositories.SessionRepository;

@@ -10,8 +10,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.atom.matchmaker.models.Player;
-import com.atom.matchmaker.models.Session;
+import com.atom.models.Player;
+import com.atom.models.Session;
 
 import java.util.HashMap;
 import java.util.List;

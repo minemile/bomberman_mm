@@ -2,11 +2,8 @@ package com.atom.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.atom.models.DataTypes.DataDirection;
 
 import java.util.Objects;
-
-import static com.atom.utils.JsonHelper.fromJson;
 
 public class Message {
     private String topic;
