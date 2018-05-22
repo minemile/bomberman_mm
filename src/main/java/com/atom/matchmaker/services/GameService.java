@@ -1,6 +1,9 @@
 package com.atom.matchmaker.services;
 
 import com.atom.matchmaker.controllers.GameServiceController;
+import com.atom.matchmaker.repositories.GameRepository;
+import com.atom.matchmaker.repositories.SessionJPARepository;
+import com.atom.models.GameSession;
 import com.atom.models.Session;
 import com.atom.matchmaker.repositories.SessionRepository;
 import org.slf4j.Logger;
@@ -15,24 +18,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class GameService {
 
 
-    private static final Logger log = LoggerFactory.getLogger(GameServiceController.class);
+    private static final Logger log = LoggerFactory.getLogger(GameService.class);
     //private PlayersRepository playersRepository;
     private SessionRepository sessionRepository;
+    private GameRepository gameRepository;
     private AtomicInteger atomicInteger = new AtomicInteger();
     private TaskExecutor taskExecutor;
+    private SessionJPARepository sessionJPARepository;
 
     @Autowired
-    public GameService(TaskExecutor taskExecutor, SessionRepository sessionRepository) {
+    public GameService(TaskExecutor taskExecutor, SessionJPARepository sessionJPARepository,
+                       SessionRepository sessionRepository, GameRepository gameRepository) {
         this.sessionRepository = sessionRepository;
         this.taskExecutor = taskExecutor;
+        this.gameRepository = gameRepository;
+        this.sessionJPARepository = sessionJPARepository;
     }
 
     public Session createSession(int playerCount)
     {
         log.info("Creating game with playerCount = {}", playerCount);
-        int sessionId = atomicInteger.getAndIncrement();
-        Session session = new Session(sessionId, playerCount);
-        sessionRepository.getSessions().put(sessionId, session);
+        //int sessionId = atomicInteger.getAndIncrement();
+        Session session = new Session(playerCount);
+        sessionJPARepository.save(session);
+        sessionRepository.getSessions().put(session.getId(), session);
         return session;
     }
 
@@ -40,7 +49,8 @@ public class GameService {
     {
         log.info("Staring session {}", gameId);
         Session session = sessionRepository.getSessions().get(gameId);
-
-        //taskExecutor.execute(session);
+        GameSession gameSession = new GameSession(session.getId(), session.getPlayers());
+        gameRepository.getGames().put(session.getId(), gameSession);
+        taskExecutor.execute(gameSession);
     }
 }

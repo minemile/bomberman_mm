@@ -3,22 +3,30 @@ package com.atom.models;
 import lombok.Data;
 import lombok.ToString;
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Entity
 @Data
 @ToString(exclude = {"players"})
 public class Session {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
     private int playerCount;
 
+    @OneToMany
     private List<Player> players = new ArrayList<>();
 
     private boolean isFinished = false;
     private double rating;
 
-    public Session(int id, int playerCount) {this.id = id; this.playerCount = playerCount;}
+    public Session() {}
+
+    public Session(int playerCount) {this.playerCount = playerCount;}
 
     public boolean isFull() {
         return players.size() >= playerCount;

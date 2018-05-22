@@ -1,9 +1,11 @@
 package com.atom.matchmaker.network;
 
+import com.atom.matchmaker.repositories.PlayersQueue;
 import com.atom.models.Player;
 import com.atom.matchmaker.repositories.PlayersRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -16,12 +18,17 @@ import java.util.Optional;
 @Component
 public class EventHandler extends TextWebSocketHandler implements WebSocketHandler {
     private static ConnectionPool connectionPool = ConnectionPool.getInstance();
+
+    private Broker broker;
+
     private PlayersRepository playersRepository;
     private static final Logger log = LoggerFactory.getLogger(EventHandler.class);
 
-    public EventHandler(PlayersRepository playersRepository)
+    @Autowired
+    public EventHandler(PlayersRepository playersRepository, Broker broker)
     {
         this.playersRepository = playersRepository;
+        this.broker = broker;
     }
 
     @Override
@@ -44,7 +51,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         //session.sendMessage(new TextMessage("{ \"history\": [ \"ololo\", \"2\" ] }"));
-        Broker.getInstance().receive(session, message.getPayload());
+        broker.receive(session, message.getPayload());
         log.info("Received " + message.toString());
     }
 

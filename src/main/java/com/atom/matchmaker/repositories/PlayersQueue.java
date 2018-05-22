@@ -11,4 +11,12 @@ import java.util.concurrent.LinkedBlockingQueue;
 @Data
 public class PlayersQueue {
     BlockingQueue<Player> players = new LinkedBlockingQueue<>();
+
+    public Player getPlayerByName(String name)
+    {
+        for (Player player : players)
+            if (player.getUsername().equals(name))
+                return player;
+        return null;
+    }
 }

@@ -13,10 +13,11 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    private Session session;
-
     private int rating;
     private final String username;
+
+    @ManyToOne
+    private Session session;
 
 
     public Player() {

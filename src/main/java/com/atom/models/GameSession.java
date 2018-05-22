@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import com.atom.game.objects.*;
 import com.atom.game.geometry.Point;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,7 +22,9 @@ public class GameSession extends Thread {
     private ConcurrentHashMap<Integer, List<Message>> messages = new ConcurrentHashMap<>();
     private List<GameObject> objects = new ArrayList<GameObject>();
     private int objId;
-    Broker broker = Broker.getInstance();
+
+    @Autowired
+    private Broker broker;
     Date lastCalled = new Date();
 
     public boolean isFinished() {

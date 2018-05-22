@@ -1,6 +1,6 @@
 package com.atom.game.geometry;
 
-import static com.atom.game.utils.JsonHelper.toJson;
+import static com.atom.utils.JsonHelper.toJson;
 
 /**
  * Template class for
