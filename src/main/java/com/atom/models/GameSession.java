@@ -1,5 +1,6 @@
 package com.atom.models;
 
+import com.atom.matchmaker.network.Broker;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.atom.game.objects.*;
@@ -13,13 +14,14 @@ import static com.atom.game.objects.TileType.CRATE;
 import static com.atom.game.objects.TileType.WALL;
 import static com.atom.utils.JsonHelper.fromJson;
 
-public class GameSession extends Thread{
+public class GameSession extends Thread {
     private int id;
     private int playerCount;
     private ConcurrentHashMap<Player,Integer> players = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, List<Message>> messages = new ConcurrentHashMap<>();
     private List<GameObject> objects = new ArrayList<GameObject>();
     private int objId;
+    Broker broker = Broker.getInstance();
     Date lastCalled = new Date();
 
     public boolean isFinished() {
@@ -46,6 +48,11 @@ public class GameSession extends Thread{
     }
 
     public boolean containsPlayer(Player player) {
+        for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
+            if (entry.getKey().equals(player)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -54,7 +61,14 @@ public class GameSession extends Thread{
         return objId;
     }
 
-    public void pushMessage(Integer id, String m) {
+    public void pushMessage(Player player, String m) {
+        int id = 0;
+        for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
+            if (entry.getKey().equals(player)) {
+                id = entry.getValue();
+                break;
+            }
+        }
         if (messages.containsKey(id)) {
             messages.get(id).add(fromJson(m, Message.class));
         } else {
@@ -64,16 +78,69 @@ public class GameSession extends Thread{
         }
     }
 
+    private void sendPossess(int id, Player player) {
+        JSONObject possess = new JSONObject();
+
+        try {
+            possess.put("data", id);
+            possess.put("topic", "POSSESS");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        broker.send(player, possess.toString());
+    }
+
     /*Game field contains 27x17 tiles
             At start of the game all tiles except corner ones and
             edges are CRATEs, edges are WALLs and corners are empty
          */
     private void initObjects(int playerCount) {
         switch (playerCount) {
-            case 4: objects.add(new Pawn(getObjId(), new Point(1, 15)));
-            case 3: objects.add(new Pawn(getObjId(), new Point(25, 1)));
-            case 2: objects.add(new Pawn(getObjId(), new Point(25, 15)));
-            case 1: objects.add(new Pawn(getObjId(), new Point(1, 1)));
+            case 4: {
+                int pawnId = getObjId();
+                objects.add(new Pawn(pawnId, new Point(1, 15)));
+
+                for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
+                    if (entry.getValue() == 0) {
+                        entry.setValue(pawnId);
+                        sendPossess(pawnId, entry.getKey());
+                    }
+                }
+            }
+            case 3: {
+                int pawnId = getObjId();
+                objects.add(new Pawn(pawnId, new Point(25, 1)));
+
+                for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
+                    if (entry.getValue() == 0) {
+                        entry.setValue(pawnId);
+                        sendPossess(pawnId, entry.getKey());
+                    }
+                }
+            }
+            case 2: {
+                int pawnId = getObjId();
+                objects.add(new Pawn(pawnId, new Point(25, 15)));
+
+                for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
+                    if (entry.getValue() == 0) {
+                        entry.setValue(pawnId);
+                        sendPossess(pawnId, entry.getKey());
+                    }
+                }
+            }
+            case 1: {
+                int pawnId = getObjId();
+                objects.add(new Pawn(pawnId, new Point(1, 1)));
+
+                for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
+                    if (entry.getValue() == 0) {
+                        entry.setValue(pawnId);
+                        sendPossess(pawnId, entry.getKey());
+                    }
+                }
+            }
         }
         Random random = new Random();
         for (int i = 0; i < 5; i++) {
@@ -284,7 +351,10 @@ public class GameSession extends Thread{
                 System.out.println("GameSession interrupted" + e.toString());
                 return;
             }
-            //broadcast(wsSession, getReplica());
+            String replica = getReplica();
+            for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
+                broker.send(entry.getKey(), replica);
+            }
         }
     }
 }
