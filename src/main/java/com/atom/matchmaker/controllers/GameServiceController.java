@@ -1,6 +1,7 @@
 package com.atom.matchmaker.controllers;
 
 import com.atom.matchmaker.repositories.PlayersRepository;
+import com.atom.matchmaker.repositories.SessionRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
