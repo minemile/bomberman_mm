@@ -1,8 +1,6 @@
 package com.atom.matchmaker.controllers;
 
-import com.atom.matchmaker.SessionCreator;
 import com.atom.matchmaker.models.Player;
-import com.atom.matchmaker.models.Session;
 import com.atom.matchmaker.repositories.PlayersQueue;
 import com.atom.matchmaker.repositories.PlayersRepository;
 import com.atom.matchmaker.repositories.SessionRepository;
@@ -45,7 +43,7 @@ public class MatchMakerController {
 
     @Autowired
     public MatchMakerController(PlayersRepository playersRepository, SessionRepository sessionRepository,
-                                TaskExecutor taskExecutor, PlayersQueue playersQueue, ApplicationContext ctx) {
+                                PlayersQueue playersQueue) {
         this.playersRepository = playersRepository;
         this.sessionRepository = sessionRepository;
         this.playersQueue = playersQueue;

@@ -1,7 +1,15 @@
 package com.atom.matchmaker.repositories;
 
 import com.atom.matchmaker.models.Session;
-import org.springframework.data.jpa.repository.JpaRepository;
+import lombok.Data;
+import org.springframework.stereotype.Repository;
 
-public interface SessionRepository extends JpaRepository<Session, Long> {
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+
+@Repository
+@Data
+public class SessionRepository {
+    ConcurrentHashMap<Integer, Session> sessions = new ConcurrentHashMap<>();
 }

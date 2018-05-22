@@ -8,28 +8,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-@Entity
 @Data
 @ToString(exclude = {"players"})
 public class Session {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private int id;
     private int playerCount;
 
-    @OneToMany(mappedBy = "session", fetch = FetchType.EAGER)
     private List<Player> players = new ArrayList<>();
 
     private boolean isFinished = false;
     private double rating;
 
-    public Session() {}
-
-    public Session(int playerCount) {
-        this.playerCount = playerCount;
-    }
-
+    public Session(int id, int playerCount) {this.id = id; this.playerCount = playerCount;}
 
     public boolean isFull() {
         return players.size() >= playerCount;

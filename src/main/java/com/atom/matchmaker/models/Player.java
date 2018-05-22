@@ -14,8 +14,6 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name="session_id")
     private Session session;
 
     private int rating;
