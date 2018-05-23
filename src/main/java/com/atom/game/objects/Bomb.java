@@ -33,8 +33,8 @@ public class Bomb extends GameObject implements Tickable {
     public String toString() {
         JSONObject position = new JSONObject();
         try {
-            position.put("x", (double) getPosition().getX());
-            position.put("y", (double) getPosition().getY());
+            position.put("x", (double) getPosition().getX() * 32);
+            position.put("y", (double) getPosition().getY() * 32);
         } catch (JSONException e) {
             e.printStackTrace();
         }

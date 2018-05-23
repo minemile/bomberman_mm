@@ -35,6 +35,10 @@ public class Pawn extends GameObject implements Tickable {
         return getPosition();
     }
 
+    public PawnState getState() {
+        return state;
+    }
+
     public void incSpeed() {
         speedBonus++;
     }
@@ -85,8 +89,8 @@ public class Pawn extends GameObject implements Tickable {
     public String toString() {
         JSONObject position = new JSONObject();
         try {
-            position.put("x", (double) getPosition().getX());
-            position.put("y", (double) getPosition().getY());
+            position.put("x", (double) getPix_position().getX());
+            position.put("y", (double) getPix_position().getY());
         } catch (JSONException e) {
             e.printStackTrace();
         }

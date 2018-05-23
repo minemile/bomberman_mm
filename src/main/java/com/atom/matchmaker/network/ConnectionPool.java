@@ -57,11 +57,15 @@ public class ConnectionPool {
     }
 
     public WebSocketSession getSession(Player player) {
-        return pool.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(player))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElseGet(null);
+        WebSocketSession webSocketSession = null;
+        while(webSocketSession == null) {
+            for (Map.Entry<WebSocketSession, Player> entry : pool.entrySet()) {
+                if (entry.getValue().getUsername().equals(player.getUsername())) {
+                    webSocketSession = entry.getKey();
+                }
+            }
+        }
+        return webSocketSession;
     }
 
     public void add(WebSocketSession session, Player player) {

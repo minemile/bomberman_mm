@@ -1,6 +1,7 @@
 package com.atom.matchmaker.services;
 
 import com.atom.matchmaker.controllers.GameServiceController;
+import com.atom.matchmaker.network.Broker;
 import com.atom.matchmaker.repositories.GameRepository;
 import com.atom.matchmaker.repositories.SessionJPARepository;
 import com.atom.models.GameSession;
@@ -25,14 +26,16 @@ public class GameService {
     private AtomicInteger atomicInteger = new AtomicInteger();
     private TaskExecutor taskExecutor;
     private SessionJPARepository sessionJPARepository;
+    private Broker broker;
 
     @Autowired
     public GameService(TaskExecutor taskExecutor, SessionJPARepository sessionJPARepository,
-                       SessionRepository sessionRepository, GameRepository gameRepository) {
+                       SessionRepository sessionRepository, GameRepository gameRepository, Broker broker) {
         this.sessionRepository = sessionRepository;
         this.taskExecutor = taskExecutor;
         this.gameRepository = gameRepository;
         this.sessionJPARepository = sessionJPARepository;
+        this.broker = broker;
     }
 
     public Session createSession(int playerCount)
@@ -49,7 +52,7 @@ public class GameService {
     {
         log.info("Staring session {}", gameId);
         Session session = sessionRepository.getSessions().get(gameId);
-        GameSession gameSession = new GameSession(session.getId(), session.getPlayers());
+        GameSession gameSession = new GameSession(session.getId(), session.getPlayers(), broker);
         gameRepository.getGames().put(session.getId(), gameSession);
         taskExecutor.execute(gameSession);
     }

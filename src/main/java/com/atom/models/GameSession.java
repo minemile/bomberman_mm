@@ -1,11 +1,15 @@
 package com.atom.models;
 
 import com.atom.matchmaker.network.Broker;
+import com.atom.matchmaker.services.GameService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.atom.game.objects.*;
 import com.atom.game.geometry.Point;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,10 +25,9 @@ public class GameSession extends Thread {
     private ConcurrentHashMap<Player,Integer> players = new ConcurrentHashMap<>();
     private ConcurrentHashMap<Integer, List<Message>> messages = new ConcurrentHashMap<>();
     private List<GameObject> objects = new ArrayList<GameObject>();
+    private static final Logger log = LoggerFactory.getLogger(GameSession.class);
     private int objId;
-
-    @Autowired
-    private Broker broker;
+    Broker broker;
     Date lastCalled = new Date();
 
     public boolean isFinished() {
@@ -41,8 +44,9 @@ public class GameSession extends Thread {
         return objects;
     }
 
-    public GameSession(int id, List<Player> gamers) {
+    public GameSession(int id, List<Player> gamers, Broker broker) {
         this.id = id;
+        this.broker = broker;
         this.playerCount = gamers.size();
         for (Player pl: gamers) {
             players.put(pl, 0);
@@ -65,6 +69,7 @@ public class GameSession extends Thread {
     }
 
     public void pushMessage(Player player, String m) {
+        log.info("PUSHED mesage {}", m);
         int id = 0;
         for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
             if (entry.getKey().equals(player)) {
@@ -196,9 +201,12 @@ public class GameSession extends Thread {
     }
 
     public String getReplica() {
+        boolean isAlive = false;
+        log.info("Entered replica");
         for (ConcurrentHashMap.Entry<Integer, List<Message>> entry : messages.entrySet()) {
             for (Message mess: entry.getValue()) {
                 if (mess.getTopic().equals("PLANT_BOMB")) {
+                    log.info("Got BOMB message from {}", entry.getKey());
                     int count = 0;
                     for (GameObject a: objects) {
                         if (a instanceof Bomb) {
@@ -215,6 +223,7 @@ public class GameSession extends Thread {
                     continue;
                 }
                 if (mess.getTopic().equals("MOVE")) {
+                    log.info("Got MOVE message from {}", entry.getKey());
                     Pawn curPawn = (Pawn)getGameObjectById(entry.getKey());
                     Point curPix = curPawn.getPix_position();
                     Point curSq = curPawn.getSq_position();
@@ -256,6 +265,7 @@ public class GameSession extends Thread {
             }
         }
         messages.clear();
+        log.info("Evaluated messages");
         Date now = new Date();
         long elapsed = now.getTime() - lastCalled.getTime();
 
@@ -299,8 +309,13 @@ public class GameSession extends Thread {
                 continue;
             }
             if (a instanceof Pawn) {
+                if (((Pawn) a).getState() != DEAD) {
+                    isAlive = true;
+                }
                 ((Pawn)a).tick(elapsed);
-                ((Pawn)a).setState(IDLE);
+                if (((Pawn) a).getState() != DEAD) {
+                    ((Pawn)a).setState(IDLE);
+                }
                 continue;
             }
             if (a instanceof Fire) {
@@ -319,9 +334,33 @@ public class GameSession extends Thread {
                     ((Fire)a).tick(elapsed);
                 }
             }
+            if (a instanceof Bonus) {
+                for (GameObject b: objects) {
+                    if ((b instanceof Pawn) && (b.getPosition().isColliding(a.getPosition()))) {
+                        switch (((Bonus) a).getType()) {
+                            case BOMBS: {
+                                ((Pawn) b).incBomb();
+                                break;
+                            }
+                            case RANGE: {
+                                ((Pawn) b).incForce();
+                                break;
+                            }
+                            case SPEED: {
+                                ((Pawn) b).incSpeed();
+                            }
+                        }
+                        iterator.remove();
+                    }
+                }
+            }
         }
+        log.info("Done tick");
         objects.addAll(newObjects);
         lastCalled = now;
+        if (!isAlive) {
+            isFinished = true;
+        }
 
         JSONObject resultJson = new JSONObject();
 
@@ -357,7 +396,9 @@ public class GameSession extends Thread {
             String replica = getReplica();
             for (ConcurrentHashMap.Entry<Player,Integer> entry : players.entrySet()) {
                 broker.send(entry.getKey(), replica);
+                log.info("Sent replica {}", replica);
             }
         }
+        log.info("Game finished");
     }
 }

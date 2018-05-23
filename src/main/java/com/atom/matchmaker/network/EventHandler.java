@@ -42,7 +42,7 @@ public class EventHandler extends TextWebSocketHandler implements WebSocketHandl
             log.info("Got player {}", player);
             connectionPool.add(session, player);
         } else {
-            log.error("Could not file player with name {}", name);
+            log.error("Could not find player with name {}", name);
         }
         //String playerName = session.getUri().getQuery().split("")
         log.info("Socket Connected: " + session);
